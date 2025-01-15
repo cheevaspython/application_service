@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class ClientReaderImpl:
+class ApplicationReaderImpl:
 
     def __init__(self, session: "AsyncSession") -> None:
         self._session: "AsyncSession" = session
