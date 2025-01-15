@@ -1,6 +1,6 @@
-from source.api.interactors.aplication.input_data import CreateApplicationInputData
+from source.api.interactors.application.input_data import CreateApplicationInputData
+from source.api.dependency.application.gateway import ApplicationGateway
 from source.common.commiter import Commiter
-from source.api.dependency.aplication.gateway import ApplicationGateway
 from source.db.models.application import Application
 
 

@@ -3,13 +3,13 @@ import json
 from fastapi import APIRouter, HTTPException, Response, status
 from dishka.integrations.fastapi import DishkaRoute, inject, FromDishka
 
-from source.api.dependency.aplication.output_data import (
+from source.api.dependency.application.output_data import (
     ApplicationListPaginated,
     ApplicationResponseData,
 )
-from source.api.interactors.aplication.create import CreateApplicationInteractor
-from source.api.interactors.aplication.get import GetApplication
-from source.api.interactors.aplication.input_data import CreateApplicationInputData
+from source.api.interactors.application.create import CreateApplicationInteractor
+from source.api.interactors.application.get import GetApplication
+from source.api.interactors.application.input_data import CreateApplicationInputData
 from source.api.queries.application.get_many import GetApplications
 from source.common.error import ApplicationError
 from source.filters.application import ApplicationFilters

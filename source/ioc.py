@@ -3,12 +3,12 @@ from typing import AsyncIterable
 from dishka import Provider, Scope, make_async_container, from_context, provide
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from source.api.dependency.aplication.gateway import ApplicationGateway
-from source.api.dependency.aplication.gateway_impl import ApplicationGatewayImpl
-from source.api.dependency.aplication.reader import ApplicationReader
-from source.api.dependency.aplication.reader_impl import ApplicationReaderImpl
-from source.api.interactors.aplication.create import CreateApplicationInteractor
-from source.api.interactors.aplication.get import GetApplication
+from source.api.dependency.application.gateway import ApplicationGateway
+from source.api.dependency.application.gateway_impl import ApplicationGatewayImpl
+from source.api.dependency.application.reader import ApplicationReader
+from source.api.dependency.application.reader_impl import ApplicationReaderImpl
+from source.api.interactors.application.create import CreateApplicationInteractor
+from source.api.interactors.application.get import GetApplication
 from source.api.queries.application.get_many import GetApplications
 from source.common.commiter import Commiter
 from source.db.db_helper import db_helper

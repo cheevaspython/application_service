@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from source.api.dependency.aplication.output_data import ApplicationResponseData
-from source.api.dependency.aplication.reader import ApplicationReader
+from source.api.dependency.application.output_data import ApplicationResponseData
+from source.api.dependency.application.reader import ApplicationReader
 from source.filters.application import ApplicationFilters
 from source.filters.pagination import Pagination
 

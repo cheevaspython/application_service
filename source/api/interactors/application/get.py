@@ -1,4 +1,4 @@
-from source.api.dependency.aplication.gateway import ApplicationGateway
+from source.api.dependency.application.gateway import ApplicationGateway
 from source.db.models.application import Application
 from source.errors.notexists import CustomDoesNotExist
 

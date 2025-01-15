@@ -1,4 +1,4 @@
-from source.api.dependency.aplication.output_data import (
+from source.api.dependency.application.output_data import (
     ApplicationResponseData,
 )
 from source.db.models.application import Application
