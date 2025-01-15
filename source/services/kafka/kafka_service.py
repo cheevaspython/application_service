@@ -5,7 +5,7 @@ from dataclasses import asdict
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
-from source.errors.kafka import KafkaProducerError, KafkaSendError, KafkaTimeError
+from source.errors.kafka import KafkaProducerError, KafkaSendError
 from source.schemas.other.kafka import KafkaMessage
 
 
