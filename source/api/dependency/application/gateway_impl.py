@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from source.db.models.application import Application
 from source.errors.application import CannotSaveApplicationError
+from source.types.model_id import ModelIdType
 
 
 class ApplicationGatewayImpl:
@@ -14,16 +15,17 @@ class ApplicationGatewayImpl:
     async def save(
         self,
         application: Application,
-    ) -> None:
+    ) -> Application:
         try:
             self._session.add(application)
             await self._session.flush()
+            return application
         except IntegrityError:
             raise CannotSaveApplicationError()
 
     async def by_id(
         self,
-        application_id: int,
+        application_id: ModelIdType,
     ) -> Application | None:
         query = select(Application).where(
             Application.id == application_id,

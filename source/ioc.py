@@ -14,6 +14,8 @@ from source.common.commiter import Commiter
 from source.db.db_helper import db_helper
 from source.config.settings import Settings, settings
 from source.db.sa_commiter import SACommiter
+from source.services.kafka.common import KafkaService
+from source.services.kafka.kafka_service import KafkaServiceImpl
 
 
 class AppProvider(Provider):
@@ -33,6 +35,12 @@ class AppProvider(Provider):
     ) -> AsyncIterable[AsyncSession,]:
         async with session_maker() as session:
             yield session
+
+    @provide(scope=Scope.APP)
+    async def provide_kafka(self, config: Settings) -> KafkaService:
+        kafka_service = KafkaServiceImpl(kafka_server=config.kafka.port)
+        await kafka_service.start()
+        return kafka_service
 
     application_gateway = provide(
         ApplicationGatewayImpl,

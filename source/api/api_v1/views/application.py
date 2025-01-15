@@ -73,7 +73,8 @@ async def get_applications(
 
 @router.post(
     "/",
-    status_code=status.HTTP_200_OK,
+    response_model=ApplicationResponseData,
+    status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_application(
@@ -81,15 +82,13 @@ async def create_application(
     interactor: FromDishka[CreateApplicationInteractor],
 ):
     try:
-        await interactor(
+        application = await interactor(
             create_data=CreateApplicationInputData(
                 user_name=input_data.user_name,
                 description=input_data.description,
             )
         )
-        response_data = {"success": True}
-        response_body = json.dumps(response_data)
-        return Response(response_body, status_code=status.HTTP_200_OK)
+        return convert_application_to_dataclass(application)
 
     except ApplicationError as e:
         raise HTTPException(

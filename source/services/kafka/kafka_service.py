@@ -4,15 +4,14 @@ from dataclasses import asdict
 
 from aiokafka import AIOKafkaProducer
 
-from source.errors.kafka import KafkaProducerError
+from source.errors.kafka import KafkaProducerError, KafkaSendError
 from source.schemas.other.kafka import KafkaMessage
 
 
-class KafkaProducer:
+class KafkaServiceImpl:
 
     def __init__(self, kafka_server: str):
         self.kafka_server = kafka_server
-        self.producer = None
 
     async def start(self) -> None:
         self.producer = AIOKafkaProducer(bootstrap_servers=self.kafka_server)
@@ -29,7 +28,10 @@ class KafkaProducer:
     ) -> None:
         if not self.producer:
             raise KafkaProducerError()
-        await self.producer.send_and_wait(
-            topic,
-            json.dumps(asdict(message)).encode("utf-8"),
-        )
+        try:
+            await self.producer.send_and_wait(
+                topic,
+                json.dumps(asdict(message)).encode("utf-8"),
+            )
+        except Exception as e:
+            raise KafkaSendError(f"Failed to send message: {str(e)}")

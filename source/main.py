@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 
-from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,13 +18,9 @@ container = setup_fastapi_container()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    producer = AIOKafkaProducer(bootstrap_servers=settings.kafka.port)
-    await producer.start()
-
     try:
         yield
     finally:
-        await producer.stop()
         await db_helper.dispose()
 
 
