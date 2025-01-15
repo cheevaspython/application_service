@@ -35,7 +35,6 @@ class DbSettings(BaseModel):
 
         return f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
-    # Переопределяем инициализацию, чтобы использовать create_url для url
     def __init__(self, **kwargs):
         kwargs["url"] = kwargs.get("url", self.create_url())
         super().__init__(**kwargs)

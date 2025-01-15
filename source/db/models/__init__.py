@@ -1,8 +1,8 @@
 from source.db.models.base import Base
-from source.db.models.user import User
+from source.db.models.application import Application
 
 
 __all__ = (
     "Base",
-    "User",
+    "Application",
 )
