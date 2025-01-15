@@ -1,7 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass
 
-from source.types.user_id import ModelIdType
+from source.types.model_id import ModelIdType
 
 
 @dataclass(slots=True, frozen=True)

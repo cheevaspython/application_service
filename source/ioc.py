@@ -7,6 +7,9 @@ from source.api.dependency.aplication.gateway import ApplicationGateway
 from source.api.dependency.aplication.gateway_impl import ApplicationGatewayImpl
 from source.api.dependency.aplication.reader import ApplicationReader
 from source.api.dependency.aplication.reader_impl import ApplicationReaderImpl
+from source.api.interactors.aplication.create import CreateApplicationInteractor
+from source.api.interactors.aplication.get import GetApplication
+from source.api.queries.application.get_many import GetApplications
 from source.db.db_helper import db_helper
 from source.config.settings import Settings, settings
 
@@ -38,6 +41,18 @@ class AppProvider(Provider):
         ApplicationReaderImpl,
         scope=Scope.REQUEST,
         provides=ApplicationReader,
+    )
+    get_applications_query = provide(
+        GetApplications,
+        scope=Scope.REQUEST,
+    )
+    get_applications_interactor = provide(
+        GetApplication,
+        scope=Scope.REQUEST,
+    )
+    create_application_interactor = provide(
+        CreateApplicationInteractor,
+        scope=Scope.REQUEST,
     )
 
 

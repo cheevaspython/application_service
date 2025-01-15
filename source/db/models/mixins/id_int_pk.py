@@ -4,7 +4,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from source.types.user_id import ModelIdType
+from source.types.model_id import ModelIdType
 
 
 class IdBigIntPkMixin:
