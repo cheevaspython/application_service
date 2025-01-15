@@ -1,1 +1,1 @@
-UserIdType = int
+ModelIdType = int
