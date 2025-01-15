@@ -34,7 +34,7 @@ services:
       - .:/application_service
     env_file: .env
     command: >
-      sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload"
+      sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload && alembic upgrade head"
     depends_on:
       kafka-0:
         condition: service_healthy
