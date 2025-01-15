@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "dishka_skeleton"
+version = "0.1.0"
+description = ""
+authors = ["Vas <vas@va.va>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.12"
+fastapi = "^0.115.0"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.35"}
+asyncpg = "^0.29.0"
+alembic = "^1.13.3"
+black = "^24.8.0"
+pydantic-settings = "^2.5.2"
+typer = "^0.12.5"
+uvicorn = "^0.31.0"
+pydantic = "^2.9.2"
+orjson = "^3.10.7"
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+typing-extensions = "^4.12.2"
+dishka = "^1.4.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: example_back
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.back
+    volumes:
+      - .:/example
+    env_file: .env
+    command: >
+      sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload"
+    depends_on:
+      - db_postgres
+    networks:
+      - app_network_test
+    restart: always
+
+  redis:
+    image: redis:7.0.5-alpine
+    container_name: redis
+    hostname: redis
+    networks:
+      - app_network_test
+    env_file: .env
+    restart: always
+
+  db_postgres:
+    container_name: db_postgres
+    image: postgres:16.2-alpine
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - app_network_test
+    volumes:
+      - ss_web_db:/var/lib/postgresql/data/
+
+  nginx_test:
+    container_name: nginx_test
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.nginx
+    env_file: .env
+    ports:
+      - "8080:8080"
+    volumes_from:
+      - backend
+    volumes:
+      - static:/static/
+    restart: always
+    networks:
+      - app_network_test
+    links:
+      - backend
+    depends_on:
+      - backend
+      - db_postgres
+
+volumes:
+  example_db:
+  static:
+  media:
+
+networks:
+  app_network_test:
