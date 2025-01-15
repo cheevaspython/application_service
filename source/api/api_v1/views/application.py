@@ -1,6 +1,4 @@
-import json
-
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, status
 from dishka.integrations.fastapi import DishkaRoute, inject, FromDishka
 
 from source.api.dependency.application.output_data import (
@@ -20,7 +18,7 @@ from source.types.model_id import ModelIdType
 
 router = APIRouter(
     tags=["Application"],
-    prefix="/Application",
+    prefix="/application",
     route_class=DishkaRoute,
 )
 

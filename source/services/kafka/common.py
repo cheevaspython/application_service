@@ -17,3 +17,10 @@ class KafkaService(Protocol):
         message: KafkaMessage,
     ) -> None:
         raise NotImplementedError
+
+    async def consume_messages(
+        self,
+        topic: Literal["application"],
+        timeout: int = 10,
+    ) -> list:
+        raise NotImplementedError

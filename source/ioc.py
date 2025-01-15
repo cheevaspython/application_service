@@ -9,6 +9,7 @@ from source.api.dependency.application.reader import ApplicationReader
 from source.api.dependency.application.reader_impl import ApplicationReaderImpl
 from source.api.interactors.application.create import CreateApplicationInteractor
 from source.api.interactors.application.get import GetApplication
+from source.api.interactors.kafka.get import GetKafkaMessagesInteractor
 from source.api.queries.application.get_many import GetApplications
 from source.common.commiter import Commiter
 from source.db.db_helper import db_helper
@@ -58,6 +59,10 @@ class AppProvider(Provider):
     )
     get_applications_interactor = provide(
         GetApplication,
+        scope=Scope.REQUEST,
+    )
+    get_kafka_messages_interactor = provide(
+        GetKafkaMessagesInteractor,
         scope=Scope.REQUEST,
     )
     create_application_interactor = provide(
