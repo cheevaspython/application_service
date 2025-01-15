@@ -102,7 +102,6 @@ services:
 
 volumes:
   application_db:
-  media:
   kafka_0_data:
     driver: local
   kafka_1_data:

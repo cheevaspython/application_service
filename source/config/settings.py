@@ -58,20 +58,8 @@ class ApiPrefix(BaseModel):
         return path.removeprefix("/")
 
 
-class MediaPathSettings(BaseModel):
-    upload_image: str = "media/"
-
-
 class KafkaSettings(BaseModel):
     port: str = "kafka-0:9092"
-
-
-class MediaTypesSettings(BaseModel):
-    accessed_types: Tuple[str, ...] = (
-        "image/jpeg",
-        "image/png",
-        "text/csv",
-    )
 
 
 class Settings(BaseSettings):
@@ -86,8 +74,6 @@ class Settings(BaseSettings):
     tz: pytz.tzinfo.BaseTzInfo = pytz.timezone("Europe/Moscow")
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
-    media_files_path: MediaPathSettings = MediaPathSettings()
-    media_types: MediaTypesSettings = MediaTypesSettings()
     kafka: KafkaSettings = KafkaSettings()
 
 

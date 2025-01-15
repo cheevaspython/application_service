@@ -3,10 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from dishka.integrations import fastapi as fastapi_integration
 
-from source.config.settings import settings
 from source.api import router as api_router
 from source.db.db_helper import db_helper
 from source.ioc import setup_fastapi_container
@@ -44,9 +42,3 @@ app.include_router(
     api_router,
 )
 fastapi_integration.setup_dishka(container, app)
-
-app.mount(
-    "/media",
-    StaticFiles(directory=settings.media_files_path.upload_image),
-    name="media",
-)

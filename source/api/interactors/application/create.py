@@ -1,6 +1,7 @@
 from source.api.interactors.application.input_data import CreateApplicationInputData
 from source.api.dependency.application.gateway import ApplicationGateway
 from source.common.commiter import Commiter
+from source.common.error import ApplicationError
 from source.db.models.application import Application
 from source.schemas.other.kafka import KafkaMessage
 from source.services.kafka.common import KafkaService
@@ -22,19 +23,25 @@ class CreateApplicationInteractor:
         self,
         create_data: CreateApplicationInputData,
     ) -> Application:
-        application = await self._application_gateway.save(
-            Application(
-                user_name=create_data.user_name,
-                description=create_data.description,
+        try:
+            await self._commiter.begin()
+            application = await self._application_gateway.save(
+                Application(
+                    user_name=create_data.user_name,
+                    description=create_data.description,
+                ),
             )
-        )
-        await self._commiter.commit()
+            await self._commiter.commit()
 
-        message = KafkaMessage(
-            application_id=application.id,
-            user_name=application.user_name,
-            description=application.description,
-            created_at=str(application.created_date),  # TODO
-        )
-        await self._kafka_service.send("application", message)
-        return application
+            message = KafkaMessage(
+                application_id=application.id,
+                user_name=application.user_name,
+                description=application.description,
+                created_at=application.created_date,
+            )
+            await self._kafka_service.send("application", message)
+
+            return application
+        except ApplicationError as e:
+            await self._commiter.rollback()
+            raise e

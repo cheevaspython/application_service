@@ -16,7 +16,6 @@ class Application(
 
     user_name: Mapped[str] = mapped_column(
         String(50),
-        unique=True,
     )
     description: Mapped[str] = mapped_column(
         String(),
