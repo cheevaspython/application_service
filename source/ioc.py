@@ -10,8 +10,10 @@ from source.api.dependency.aplication.reader_impl import ApplicationReaderImpl
 from source.api.interactors.aplication.create import CreateApplicationInteractor
 from source.api.interactors.aplication.get import GetApplication
 from source.api.queries.application.get_many import GetApplications
+from source.common.commiter import Commiter
 from source.db.db_helper import db_helper
 from source.config.settings import Settings, settings
+from source.db.sa_commiter import SACommiter
 
 
 class AppProvider(Provider):
@@ -53,6 +55,11 @@ class AppProvider(Provider):
     create_application_interactor = provide(
         CreateApplicationInteractor,
         scope=Scope.REQUEST,
+    )
+    sa_commiter = provide(
+        SACommiter,
+        scope=Scope.REQUEST,
+        provides=Commiter,
     )
 
 

@@ -2,18 +2,16 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from source.db.models.application import Application
 from source.errors.application import CannotSaveApplicationError
 
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
 
 class ApplicationGatewayImpl:
 
-    def __init__(self, session: "AsyncSession") -> None:
-        self._session: "AsyncSession" = session
+    def __init__(self, session: AsyncSession) -> None:
+        self._session: AsyncSession = session
 
     async def save(
         self,

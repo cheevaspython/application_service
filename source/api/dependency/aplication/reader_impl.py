@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import desc, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from source.api.dependency.aplication.output_data import ApplicationResponseData
 from source.db.models.application import Application
@@ -8,14 +7,11 @@ from source.filters.application import ApplicationFilters
 from source.filters.pagination import Pagination
 from source.services.application.convertor import convert_application_to_dataclass
 
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
 
 class ApplicationReaderImpl:
 
-    def __init__(self, session: "AsyncSession") -> None:
-        self._session: "AsyncSession" = session
+    def __init__(self, session: AsyncSession) -> None:
+        self._session: AsyncSession = session
 
     async def get_list(
         self,
