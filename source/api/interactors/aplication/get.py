@@ -11,7 +11,7 @@ class GetApplication:
     ):
         self._application_gateway = application_gateway
 
-    async def by_id(self, application_id: int) -> Application | None:
+    async def by_id(self, application_id: int) -> Application:
         application = await self._application_gateway.by_id(
             application_id=application_id
         )
