@@ -4,10 +4,12 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from source.types.user_id import ModelIdType
+
 
 class IdBigIntPkMixin:
 
-    id: Mapped[int] = mapped_column(
+    id: Mapped[ModelIdType] = mapped_column(
         BigInteger,
         Identity(),
         primary_key=True,
