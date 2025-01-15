@@ -8,18 +8,20 @@ ENV PYTHONFAULTHANDLER=1 \
   PIP_DEFAULT_TIMEOUT=100 \
   POETRY_VERSION=1.4.0
 
+RUN apt update 
+
 RUN pip install "setuptools"
 RUN pip install "poetry==$POETRY_VERSION"
 RUN pip install "typing_extensions"
 
-WORKDIR /example
-COPY poetry.lock pyproject.toml /example/
+WORKDIR /application_service
+COPY poetry.lock pyproject.toml /application_service/
 
 RUN poetry config installer.max-workers 10
 RUN poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi
 
-COPY . /example
+COPY . /application_service
 
 RUN adduser --disabled-password docker-admin
 USER docker-admin

@@ -59,17 +59,12 @@ class ApiPrefix(BaseModel):
         return path.removeprefix("/")
 
 
-class VerifyCodeSettings(BaseModel):
-    code: int = 123456
-
-
-class WorkerSettings(BaseModel):
-    celery_broker_url: str
-    celery_result_backend: str
-
-
 class MediaPathSettings(BaseModel):
     upload_image: str = "media/"
+
+
+class KafkaSettings(BaseModel):
+    port: str = "kafka-0:9092"
 
 
 class MediaTypesSettings(BaseModel):
@@ -92,10 +87,9 @@ class Settings(BaseSettings):
     tz: pytz.tzinfo.BaseTzInfo = pytz.timezone("Europe/Moscow")
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
-    verify: VerifyCodeSettings = VerifyCodeSettings()
     media_files_path: MediaPathSettings = MediaPathSettings()
     media_types: MediaTypesSettings = MediaTypesSettings()
-    worker: WorkerSettings
+    kafka: KafkaSettings = KafkaSettings()
 
 
 settings = Settings()

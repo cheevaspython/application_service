@@ -1,29 +1,49 @@
 version: "3.9"
 
+x-kafka-common: &kafka-common
+  image: "bitnami/kafka:3.9.0"
+  ports:
+    - "9092"
+  networks:
+    - app_network
+  healthcheck:
+    test: 'bash -c ''printf "" > /dev/tcp/127.0.0.1/9092; exit $$?;'''
+    interval: 5s
+    timeout: 10s
+    retries: 3
+    start_period: 30s
+  restart: unless-stopped
+
+x-kafka-env-common: &kafka-env-common
+  ALLOW_PLAINTEXT_LISTENER: "yes"
+  KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+  KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka-0:9093,1@kafka-1:9093
+  KAFKA_KRAFT_CLUSTER_ID: abcdefghijklmnopqrstuv
+  KAFKA_CFG_PROCESS_ROLES: controller,broker
+  KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+  EXTRA_ARGS: "-Xms128m -Xmx256m"
+
 services:
   backend:
-    container_name: example_back
+    container_name: backend
     build:
       context: .
       dockerfile: docker/Dockerfile.back
     volumes:
-      - .:/example
+      - .:/application_service
     env_file: .env
     command: >
       sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload"
     depends_on:
-      - db_postgres
+      kafka-0:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      db_postgres:
+        condition: service_healthy
     networks:
-      - app_network_test
-    restart: always
-
-  redis:
-    image: redis:7.0.5-alpine
-    container_name: redis
-    hostname: redis
-    networks:
-      - app_network_test
-    env_file: .env
+      - app_network
     restart: always
 
   db_postgres:
@@ -32,35 +52,61 @@ services:
     restart: unless-stopped
     env_file: .env
     networks:
-      - app_network_test
+      - app_network
     volumes:
-      - ss_web_db:/var/lib/postgresql/data/
+      - application_db:/var/lib/postgresql/data/
+    healthcheck:
+      test: "bash -c 'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB'"
+      interval: 5s
+      retries: 3
+      start_period: 30s
 
-  nginx_test:
-    container_name: nginx_test
+  nginx:
+    container_name: nginx
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
-    env_file: .env
     ports:
-      - "8080:8080"
+      - "80:8080"
     volumes_from:
       - backend
-    volumes:
-      - static:/static/
     restart: always
-    networks:
-      - app_network_test
     links:
       - backend
     depends_on:
       - backend
       - db_postgres
+    networks:
+      - app_network
+
+  kafka-0:
+    <<: *kafka-common
+    container_name: kafka-0
+
+    environment:
+      <<: *kafka-env-common
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-0:9092
+      KAFKA_CFG_NODE_ID: 0
+    volumes:
+      - kafka_0_data:/bitnami/kafka
+
+  kafka-1:
+    <<: *kafka-common
+    container_name: kafka-1
+    environment:
+      <<: *kafka-env-common
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+      KAFKA_CFG_NODE_ID: 1
+    volumes:
+      - kafka_1_data:/bitnami/kafka
 
 volumes:
-  example_db:
-  static:
+  application_db:
   media:
+  kafka_0_data:
+    driver: local
+  kafka_1_data:
+    driver: local
 
 networks:
-  app_network_test:
+  app_network:
