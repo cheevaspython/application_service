@@ -1,6 +1,5 @@
 import os
 import pytz
-from typing import Tuple
 
 from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,6 +12,7 @@ class RunConfig(BaseModel):
 
 class DbSettings(BaseModel):
     url: PostgresDsn
+    test_url: PostgresDsn
     echo: bool = False
     echo_pool: bool = False
     max_overflow: int = 50
@@ -32,11 +32,20 @@ class DbSettings(BaseModel):
         POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
         POSTGRES_HOST = os.getenv("POSTGRES_HOST")
         POSTGRES_PORT = os.getenv("POSTGRES_PORT")
+        return f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
+    @classmethod
+    def create_test_url(cls):
+        POSTGRES_DB = "test_database"
+        POSTGRES_USER = "test_user"
+        POSTGRES_PASSWORD = "test_password"
+        POSTGRES_HOST = os.getenv("POSTGRES_HOST")
+        POSTGRES_PORT = os.getenv("POSTGRES_PORT")
         return f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
     def __init__(self, **kwargs):
         kwargs["url"] = kwargs.get("url", self.create_url())
+        kwargs["test_url"] = kwargs.get("testurl", self.create_test_url())
         super().__init__(**kwargs)
 
 

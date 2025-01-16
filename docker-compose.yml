@@ -34,7 +34,7 @@ services:
       - .:/application_service
     env_file: .env
     command: >
-      sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload && alembic upgrade head"
+      sh -c "uvicorn source.main:app --host 0.0.0.0 --port 8088 --reload"
     depends_on:
       kafka-0:
         condition: service_healthy
@@ -55,6 +55,7 @@ services:
       - app_network
     volumes:
       - application_db:/var/lib/postgresql/data/
+      - ./init-scripts:/docker-entrypoint-initdb.d/
     healthcheck:
       test: "bash -c 'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB'"
       interval: 5s
