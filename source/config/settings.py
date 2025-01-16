@@ -68,7 +68,9 @@ class ApiPrefix(BaseModel):
 
 
 class KafkaSettings(BaseModel):
-    port: str = "kafka-0:9092"
+    worker_main: str = "kafka-0:9092"
+    worker_second: str = "kafka-1:9092"
+    connections: list[str] = [worker_main, worker_second]
 
 
 class Settings(BaseSettings):

@@ -40,3 +40,25 @@ class KafkaTimeError(ApplicationError):
     def message(self):
         logger.warning("Timeout reached, no more messages received.")
         return "Timeout reached, no more messages received."
+
+
+@dataclass(eq=False)
+class KafkaConnectionCustomError(ApplicationError):
+    error: str
+    server: str
+
+    @property
+    def message(self):
+        logger.warning(
+            f"Failed to connect to Kafka server: {self.server}, error: {self.error}"
+        )
+        return f"Failed to connect to Kafka server: {self.server}, error: {self.error}"
+
+
+@dataclass(eq=False)
+class KafkaRunTimeError(ApplicationError):
+
+    @property
+    def message(self):
+        logger.warning("Failed to connect to any of the Kafka servers.")
+        return "Failed to connect to any of the Kafka servers."

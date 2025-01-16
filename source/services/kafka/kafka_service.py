@@ -4,19 +4,63 @@ from typing import Literal
 from dataclasses import asdict
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
+from aiokafka.client import KafkaConnectionError
 
-from source.errors.kafka import KafkaProducerError, KafkaSendError
+from source.errors.kafka import (
+    KafkaConnectionCustomError,
+    KafkaProducerError,
+    KafkaRunTimeError,
+    KafkaSendError,
+)
 from source.schemas.other.kafka import KafkaMessage
 
 
 class KafkaServiceImpl:
 
-    def __init__(self, kafka_server: str):
-        self.kafka_server = kafka_server
+    def __init__(self, kafka_servers: list[str]):
+        """
+        Инициализирует KafkaServiceImpl с массивом серверов Kafka.
+
+        :param kafka_servers: Список серверов Kafka (например, ["kafka-0:9092", "kafka-1:9092"])
+        """
+        self.kafka_servers = kafka_servers
+        self.producer = None
 
     async def start(self) -> None:
-        self.producer = AIOKafkaProducer(bootstrap_servers=self.kafka_server)
-        await self.producer.start()
+        """
+        Запускает подключение к Kafka. Если первый сервер недоступен, переключается на следующий.
+        """
+        for server in self.kafka_servers:
+            try:
+                self.producer = AIOKafkaProducer(bootstrap_servers=server)
+                await self.producer.start()
+                return
+            except KafkaConnectionError as e:
+                raise KafkaConnectionCustomError(server=server, error=str(e))
+
+        raise KafkaRunTimeError()
+
+    async def _start_consumer(
+        self,
+        topic: Literal["application"],
+    ) -> AIOKafkaConsumer:
+        """
+        Запускает подключение к Consumer Kafka. Если первый сервер недоступен, переключается на следующий.
+        """
+        for server in self.kafka_servers:
+            try:
+                consumer = AIOKafkaConsumer(
+                    topic,
+                    bootstrap_servers=server,
+                    auto_offset_reset="earliest",
+                )
+                await consumer.start()
+                return consumer
+            except KafkaConnectionError as e:
+                raise KafkaConnectionCustomError(server=server, error=str(e))
+
+        else:
+            raise KafkaRunTimeError()
 
     async def stop(self) -> None:
         if self.producer:
@@ -35,19 +79,15 @@ class KafkaServiceImpl:
                 json.dumps(asdict(message)).encode("utf-8"),
             )
         except Exception as e:
-            raise KafkaSendError(f"Failed to send message: {str(e)}")
+            raise KafkaSendError(error=str(e))
 
     async def consume_messages(
         self,
         topic: Literal["application"],
         timeout: int = 1,
     ) -> list:
-        consumer = AIOKafkaConsumer(
-            topic,
-            bootstrap_servers=self.kafka_server,
-            auto_offset_reset="earliest",
-        )
-        await consumer.start()
+
+        consumer = await self._start_consumer(topic=topic)
         result = []
         try:
             try:

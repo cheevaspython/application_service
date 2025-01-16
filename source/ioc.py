@@ -39,7 +39,7 @@ class AppProvider(Provider):
 
     @provide(scope=Scope.APP)
     async def provide_kafka(self, config: Settings) -> KafkaService:
-        kafka_service = KafkaServiceImpl(kafka_server=config.kafka.port)
+        kafka_service = KafkaServiceImpl(kafka_servers=config.kafka.connections)
         await kafka_service.start()
         return kafka_service
 
