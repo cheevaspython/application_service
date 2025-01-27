@@ -80,7 +80,7 @@ async def create_application(
     interactor: FromDishka[CreateApplicationInteractor],
 ):
     try:
-        application = await interactor(
+        application = await interactor.create_faststream(
             create_data=CreateApplicationInputData(
                 user_name=input_data.user_name,
                 description=input_data.description,

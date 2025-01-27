@@ -70,6 +70,7 @@ class ApiPrefix(BaseModel):
 class KafkaSettings(BaseModel):
     worker_main: str = "kafka-0:9092"
     worker_second: str = "kafka-1:9092"
+    topic: str = "application"
     connections: list[str] = [worker_main, worker_second]
 
 

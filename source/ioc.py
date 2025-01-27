@@ -1,6 +1,7 @@
 from typing import AsyncIterable
 
 from dishka import Provider, Scope, make_async_container, from_context, provide
+from faststream.kafka.fastapi import KafkaRouter
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from source.api.dependency.application.gateway import ApplicationGateway
@@ -15,8 +16,9 @@ from source.common.commiter import Commiter
 from source.db.db_helper import db_helper
 from source.config.settings import Settings, settings
 from source.db.sa_commiter import SACommiter
-from source.services.kafka.common import KafkaService
+from source.services.kafka.common import KafkaService, KafkaServiceFs
 from source.services.kafka.kafka_service import KafkaServiceImpl
+from source.services.kafka.kafka_servise_fs import KafkaServiceImplFast
 
 
 class AppProvider(Provider):
@@ -24,6 +26,16 @@ class AppProvider(Provider):
         provides=Settings,
         scope=Scope.APP,
     )
+
+    @provide(scope=Scope.APP)
+    async def provide_kafka(
+        self,
+        config: Settings,
+    ) -> KafkaRouter:
+        kafka_router = KafkaRouter(
+            bootstrap_servers=config.kafka.connections[0],
+        )
+        return kafka_router
 
     @provide(scope=Scope.APP)
     def provide_session_maker(self) -> async_sessionmaker[AsyncSession]:
@@ -37,12 +49,6 @@ class AppProvider(Provider):
         async with session_maker() as session:
             yield session
 
-    @provide(scope=Scope.APP)
-    async def provide_kafka(self, config: Settings) -> KafkaService:
-        kafka_service = KafkaServiceImpl(kafka_servers=config.kafka.connections)
-        await kafka_service.start()
-        return kafka_service
-
     application_gateway = provide(
         ApplicationGatewayImpl,
         scope=Scope.REQUEST,
@@ -52,6 +58,16 @@ class AppProvider(Provider):
         ApplicationReaderImpl,
         scope=Scope.REQUEST,
         provides=ApplicationReader,
+    )
+    # kafka_service = provide(
+    #     KafkaServiceImpl,
+    #     scope=Scope.REQUEST,
+    #     provides=KafkaService,
+    # )
+    kafka_service_fs = provide(
+        KafkaServiceImplFast,
+        scope=Scope.REQUEST,
+        provides=KafkaServiceFs,
     )
     get_applications_query = provide(
         GetApplications,

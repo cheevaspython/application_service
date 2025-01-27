@@ -24,3 +24,12 @@ class KafkaService(Protocol):
         timeout: int = 10,
     ) -> list:
         raise NotImplementedError
+
+
+class KafkaServiceFs(Protocol):
+
+    async def send_fs(
+        self,
+        message: KafkaMessage,
+    ) -> None:
+        raise NotImplementedError

@@ -17,6 +17,11 @@ container = setup_fastapi_container()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
+        # # Настраиваем DI через Dishka
+        #  kafka_router = await container.resolve(AppProvider).provide_kafka()
+        #
+        #  # Регистрируем KafkaRouter в FastAPI
+        #  app.include_router(kafka_router.router)
         yield
     finally:
         await db_helper.dispose()
