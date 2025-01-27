@@ -55,7 +55,7 @@ services:
       - app_network
     volumes:
       - application_db:/var/lib/postgresql/data/
-      - ./init-scripts:/docker-entrypoint-initdb.d/
+      - ./init_scripts:/docker-entrypoint-initdb.d/
     healthcheck:
       test: "bash -c 'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB'"
       interval: 5s
