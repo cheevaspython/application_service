@@ -57,8 +57,10 @@ class KafkaConnectionCustomError(ApplicationError):
 
 @dataclass(eq=False)
 class KafkaRunTimeError(ApplicationError):
+    error: str = ""
 
     @property
     def message(self):
-        logger.warning("Failed to connect to any of the Kafka servers.")
-        return "Failed to connect to any of the Kafka servers."
+        text = f"Failed to connect to any of the Kafka servers. error: {self.error}"
+        logger.warning(text)
+        return text

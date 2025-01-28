@@ -4,8 +4,12 @@ from typing import Literal
 from dataclasses import asdict
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
+from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 from aiokafka.client import KafkaConnectionError
+from faststream.kafka.fastapi import KafkaRouter
 
+from source.services.logging import logger
+from source.config.settings import settings
 from source.errors.kafka import (
     KafkaConnectionCustomError,
     KafkaProducerError,
@@ -17,28 +21,31 @@ from source.schemas.other.kafka import KafkaMessage
 
 class KafkaServiceImpl:
 
-    def __init__(self, kafka_servers: list[str]):
+    def __init__(
+        self,
+        kafka_router: KafkaRouter,
+        kafka_admin: AIOKafkaAdminClient,
+    ):
         """
         Инициализирует KafkaServiceImpl с массивом серверов Kafka.
 
         :param kafka_servers: Список серверов Kafka (например, ["kafka-0:9092", "kafka-1:9092"])
         """
-        self.kafka_servers = kafka_servers
+        self._kafka_router = kafka_router
+        self._kafka_admin = kafka_admin
         self.producer = None
 
     async def start(self) -> None:
         """
         Запускает подключение к Kafka. Если первый сервер недоступен, переключается на следующий.
         """
-        for server in self.kafka_servers:
-            try:
-                self.producer = AIOKafkaProducer(bootstrap_servers=server)
-                await self.producer.start()
-                return
-            except KafkaConnectionError as e:
-                raise KafkaConnectionCustomError(server=server, error=str(e))
-
-        raise KafkaRunTimeError()
+        server = settings.kafka.connections[1]
+        try:
+            self.producer = AIOKafkaProducer(bootstrap_servers=server)
+            await self.producer.start()
+            return
+        except KafkaConnectionError as e:
+            raise KafkaConnectionCustomError(server=server, error=str(e))
 
     async def _start_consumer(
         self,
@@ -47,20 +54,17 @@ class KafkaServiceImpl:
         """
         Запускает подключение к Consumer Kafka. Если первый сервер недоступен, переключается на следующий.
         """
-        for server in self.kafka_servers:
-            try:
-                consumer = AIOKafkaConsumer(
-                    topic,
-                    bootstrap_servers=server,
-                    auto_offset_reset="earliest",
-                )
-                await consumer.start()
-                return consumer
-            except KafkaConnectionError as e:
-                raise KafkaConnectionCustomError(server=server, error=str(e))
-
-        else:
-            raise KafkaRunTimeError()
+        server = settings.kafka.connections[1]
+        try:
+            consumer = AIOKafkaConsumer(
+                topic,
+                bootstrap_servers=server,
+                auto_offset_reset="earliest",
+            )
+            await consumer.start()
+            return consumer
+        except KafkaConnectionError as e:
+            raise KafkaConnectionCustomError(server=server, error=str(e))
 
     async def stop(self) -> None:
         if self.producer:
@@ -114,3 +118,32 @@ class KafkaServiceImpl:
         async for message in consumer:
             if message.value:
                 result.append(message.value.decode("utf-8"))
+
+    async def send_fs(
+        self,
+        message: KafkaMessage,
+    ) -> None:
+        try:
+            await self._kafka_router.broker.publish(
+                topic=settings.kafka.topic,
+                message=message,
+            )
+        except Exception as e:
+            raise KafkaRunTimeError(error=str(e))
+
+    async def create_topic(
+        self,
+        topic_name: str,
+    ) -> None:
+        try:
+            topic = NewTopic(
+                name=topic_name,
+                num_partitions=1,
+                replication_factor=1,
+            )
+            await self._kafka_admin.create_topics([topic])
+            logger.info(f"Topic '{topic_name}' created successfully!")
+        except Exception as e:
+            raise KafkaRunTimeError(error=str(e))
+        finally:
+            await self._kafka_admin.close()

@@ -3,7 +3,7 @@ from typing import Literal, Protocol
 from source.schemas.other.kafka import KafkaMessage
 
 
-class KafkaService(Protocol):
+class KafkaGateway(Protocol):
 
     async def start(self) -> None:
         raise NotImplementedError
@@ -25,11 +25,14 @@ class KafkaService(Protocol):
     ) -> list:
         raise NotImplementedError
 
-
-class KafkaServiceFs(Protocol):
-
     async def send_fs(
         self,
         message: KafkaMessage,
+    ) -> None:
+        raise NotImplementedError
+
+    async def create_topic(
+        self,
+        topic_name: str,
     ) -> None:
         raise NotImplementedError
